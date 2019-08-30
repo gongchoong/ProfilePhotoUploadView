@@ -1,0 +1,6 @@
+framework module Pods_ProfilePhotoUploadView {
+  umbrella header "Pods-ProfilePhotoUploadView-umbrella.h"
+
+  export *
+  module * { export * }
+}

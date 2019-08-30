@@ -1,0 +1,107 @@
+PODS:
+  - Bolts (1.9.0):
+    - Bolts/AppLinks (= 1.9.0)
+    - Bolts/Tasks (= 1.9.0)
+  - Bolts/AppLinks (1.9.0):
+    - Bolts/Tasks
+  - Bolts/Tasks (1.9.0)
+  - FacebookCore (0.5.0):
+    - Bolts (~> 1.9)
+    - FBSDKCoreKit (~> 4.37)
+  - FacebookLogin (0.5.0):
+    - Bolts (~> 1.9)
+    - FacebookCore (~> 0.5)
+    - FBSDKCoreKit (~> 4.37)
+    - FBSDKLoginKit (~> 4.37)
+  - FacebookShare (0.5.0):
+    - Bolts (~> 1.9)
+    - FacebookCore (~> 0.5)
+    - FBSDKCoreKit (~> 4.37)
+    - FBSDKShareKit (~> 4.37)
+  - FBSDKCoreKit (4.40.0):
+    - Bolts (~> 1.9)
+  - FBSDKLoginKit (4.40.0):
+    - FBSDKCoreKit
+  - FBSDKShareKit (4.40.0):
+    - FBSDKCoreKit
+  - Firebase/Auth (5.18.0):
+    - Firebase/CoreOnly
+    - FirebaseAuth (= 5.4.0)
+  - Firebase/CoreOnly (5.18.0):
+    - FirebaseCore (= 5.3.1)
+  - Firebase/Database (5.18.0):
+    - Firebase/CoreOnly
+    - FirebaseDatabase (= 5.1.0)
+  - Firebase/Storage (5.18.0):
+    - Firebase/CoreOnly
+    - FirebaseStorage (= 3.1.0)
+  - FirebaseAuth (5.4.0):
+    - FirebaseAuthInterop (~> 1.0)
+    - FirebaseCore (~> 5.2)
+    - GoogleUtilities/Environment (~> 5.2)
+    - GTMSessionFetcher/Core (~> 1.1)
+  - FirebaseAuthInterop (1.0.0)
+  - FirebaseCore (5.3.1):
+    - GoogleUtilities/Logger (~> 5.2)
+  - FirebaseDatabase (5.1.0):
+    - FirebaseAuthInterop (~> 1.0)
+    - FirebaseCore (~> 5.2)
+    - leveldb-library (~> 1.18)
+  - FirebaseStorage (3.1.0):
+    - FirebaseAuthInterop (~> 1.0)
+    - FirebaseCore (~> 5.2)
+    - GTMSessionFetcher/Core (~> 1.1)
+  - GoogleUtilities/Environment (5.3.7)
+  - GoogleUtilities/Logger (5.3.7):
+    - GoogleUtilities/Environment
+  - GTMSessionFetcher/Core (1.2.1)
+  - leveldb-library (1.20)
+
+DEPENDENCIES:
+  - FacebookCore
+  - FacebookLogin
+  - FacebookShare
+  - Firebase/Auth
+  - Firebase/Database
+  - Firebase/Storage
+
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - Bolts
+    - FacebookCore
+    - FacebookLogin
+    - FacebookShare
+    - FBSDKCoreKit
+    - FBSDKLoginKit
+    - FBSDKShareKit
+    - Firebase
+    - FirebaseAuth
+    - FirebaseAuthInterop
+    - FirebaseCore
+    - FirebaseDatabase
+    - FirebaseStorage
+    - GoogleUtilities
+    - GTMSessionFetcher
+    - leveldb-library
+
+SPEC CHECKSUMS:
+  Bolts: ac6567323eac61e203f6a9763667d0f711be34c8
+  FacebookCore: 74288d0add931d361b1596beae787ab72c438249
+  FacebookLogin: ebcf34714a1cb9f0759d9f071cfb01ed500996cf
+  FacebookShare: 963b4bb1124a64a395b1e428163d70b5774116e8
+  FBSDKCoreKit: ae214474b25033399c131dc81d258e412582a2ba
+  FBSDKLoginKit: 7a1e411d46acc8834588eca437daf34de42e1d52
+  FBSDKShareKit: 0e45916f4150da485928ae2a17ca021950b194f5
+  Firebase: 02f3281965c075426141a0ce1277e9de6649cab9
+  FirebaseAuth: d85d052354447f30b4b2a805ab91b511458b56a6
+  FirebaseAuthInterop: 0ffa57668be100582bb7643d4fcb7615496c41fc
+  FirebaseCore: 52f851b30e11360f1e67cf04b1edfebf0a47a2d3
+  FirebaseDatabase: 23acb0c53cd4d4070a427b60100b2e4aaa97c45d
+  FirebaseStorage: 29075f874c2b3cf61e5221a62c4ceefc809e5412
+  GoogleUtilities: 111a012f4c3a29c9e7c954c082fafd6ee3c999c0
+  GTMSessionFetcher: 32aeca0aa144acea523e1c8e053089dec2cb98ca
+  leveldb-library: 08cba283675b7ed2d99629a4bc5fd052cd2bb6a5
+
+PODFILE CHECKSUM: 0c29ae870d1237908dd275bac5f1e1a4d0fc1ae4
+
+COCOAPODS: 1.5.3
