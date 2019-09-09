@@ -55,7 +55,11 @@ PODS:
   - GoogleUtilities/Logger (5.3.7):
     - GoogleUtilities/Environment
   - GTMSessionFetcher/Core (1.2.1)
+  - JGProgressHUD (2.0.3)
   - leveldb-library (1.20)
+  - SDWebImage (4.4.6):
+    - SDWebImage/Core (= 4.4.6)
+  - SDWebImage/Core (4.4.6)
 
 DEPENDENCIES:
   - FacebookCore
@@ -64,6 +68,8 @@ DEPENDENCIES:
   - Firebase/Auth
   - Firebase/Database
   - Firebase/Storage
+  - JGProgressHUD
+  - SDWebImage
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
@@ -82,7 +88,9 @@ SPEC REPOS:
     - FirebaseStorage
     - GoogleUtilities
     - GTMSessionFetcher
+    - JGProgressHUD
     - leveldb-library
+    - SDWebImage
 
 SPEC CHECKSUMS:
   Bolts: ac6567323eac61e203f6a9763667d0f711be34c8
@@ -100,8 +108,10 @@ SPEC CHECKSUMS:
   FirebaseStorage: 29075f874c2b3cf61e5221a62c4ceefc809e5412
   GoogleUtilities: 111a012f4c3a29c9e7c954c082fafd6ee3c999c0
   GTMSessionFetcher: 32aeca0aa144acea523e1c8e053089dec2cb98ca
+  JGProgressHUD: 12b20a8f4ffe05258f8635c1ab92816e451f904d
   leveldb-library: 08cba283675b7ed2d99629a4bc5fd052cd2bb6a5
+  SDWebImage: 3f3f0c02f09798048c47a5ed0a13f17b063572d8
 
-PODFILE CHECKSUM: 0c29ae870d1237908dd275bac5f1e1a4d0fc1ae4
+PODFILE CHECKSUM: dd8c0ef042ac6849abb4cbdae0730d307250d467
 
 COCOAPODS: 1.5.3

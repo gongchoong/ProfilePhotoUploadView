@@ -43,12 +43,15 @@ class LoginViewController: UIViewController {
     }
     
     @objc func handleLogin(){
+        deactivateLoginButton()
         let loginManager = LoginManager()
         loginManager.logIn(readPermissions: [.publicProfile, .email], viewController: self) { loginResult in
             switch loginResult {
             case .failed(let error):
+                self.activateLoginButton()
                 print(error)
             case .cancelled:
+                self.activateLoginButton()
                 print("User cancelled login.")
             case .success:
                 print("Logged in!")
@@ -67,8 +70,7 @@ class LoginViewController: UIViewController {
             print("user is signed in to firebase")
             self.getGraphData(completion: { (response) in
                 self.registerNewUser(response, {
-                    self.prepareMainViewModel()
-                    self.navigationController?.popViewController(animated: true)
+                    self.loadMainViewController()
                 })
             })
         }
@@ -105,13 +107,27 @@ class LoginViewController: UIViewController {
     fileprivate func checkIfLoggedIn(){
         if Auth.auth().currentUser != nil{
             print("already logged in!!!")
-            navigationController?.popViewController(animated: true)
+            loadMainViewController()
         }
     }
     
     fileprivate func prepareMainViewModel(){
-        if let model = self.mainViewController?.viewModel{
-            model.populate()
+        if let vc = self.mainViewController{
+            vc.setupViewModel()
         }
+    }
+    
+    fileprivate func loadMainViewController(){
+        let mainViewController = MainViewController()
+        navigationController?.pushViewController(mainViewController, animated: true)
+        activateLoginButton()
+    }
+    
+    fileprivate func activateLoginButton(){
+        self.FBLoginButton.isEnabled = true
+    }
+    
+    fileprivate func deactivateLoginButton(){
+        self.FBLoginButton.isEnabled = false
     }
 }

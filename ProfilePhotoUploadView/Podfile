@@ -13,5 +13,7 @@ target 'ProfilePhotoUploadView' do
   pod 'FacebookCore'
   pod 'FacebookLogin'
   pod 'FacebookShare'
+  pod 'JGProgressHUD'
+  pod 'SDWebImage'
 
 end
