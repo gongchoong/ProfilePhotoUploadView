@@ -336,6 +336,24 @@ extension MainViewController: UIImagePickerControllerDelegate {
         }
     }
     
+    fileprivate func activateHUDforSavingProfile(){
+        self.hud.textLabel.text = "Saving profile"
+        self.hud.show(in: self.view)
+        self.navigationItem.rightBarButtonItem?.isEnabled = false
+    }
+    
+    fileprivate func deActivateHUDforSavingProfile(){
+        self.hud.dismiss()
+        self.navigationItem.rightBarButtonItem?.isEnabled = true
+    }
+    
+    fileprivate func generateEmptyPhotoAlert(){
+        let alertController = UIAlertController(title: "You need to upload at least one profile photo", message: "", preferredStyle: .alert)
+        let action = UIAlertAction(title: "Ok", style: .cancel, handler: nil)
+        alertController.addAction(action)
+        present(alertController, animated: true, completion: nil)
+    }
+    
     fileprivate func presentPhotoLibrary(_ indexPath: IndexPath){
         DispatchQueue.main.async {
             if UIImagePickerController.isSourceTypeAvailable(.photoLibrary){
@@ -370,24 +388,6 @@ extension MainViewController: UIImagePickerControllerDelegate {
             }
             dismiss(animated: true)
         }
-    }
-    
-    fileprivate func activateHUDforSavingProfile(){
-        self.hud.textLabel.text = "Saving profile"
-        self.hud.show(in: self.view)
-        self.navigationItem.rightBarButtonItem?.isEnabled = false
-    }
-    
-    fileprivate func deActivateHUDforSavingProfile(){
-        self.hud.dismiss()
-        self.navigationItem.rightBarButtonItem?.isEnabled = true
-    }
-    
-    fileprivate func generateEmptyPhotoAlert(){
-        let alertController = UIAlertController(title: "You need to upload at least one profile photo", message: "", preferredStyle: .alert)
-        let action = UIAlertAction(title: "Ok", style: .cancel, handler: nil)
-        alertController.addAction(action)
-        present(alertController, animated: true, completion: nil)
     }
 }
 

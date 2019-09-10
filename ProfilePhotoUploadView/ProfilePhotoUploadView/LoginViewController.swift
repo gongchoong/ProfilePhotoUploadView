@@ -13,12 +13,21 @@ import Firebase
 
 class LoginViewController: UIViewController {
     
+    let titleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = UIFont.systemFont(ofSize: 34)
+        label.text = "Profile Photo Upload View"
+        label.textAlignment = .center
+        return label
+    }()
+    
     let FBLoginButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(handleLogin), for: .touchUpInside)
         button.setBackgroundImage(UIImage(named: "custom_facebook_signin"), for: .normal)
-        button.imageView?.contentMode = .scaleAspectFill
+        button.contentMode = .scaleAspectFit
         return button
     }()
     
@@ -26,19 +35,26 @@ class LoginViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor.yellow
+        view.backgroundColor = UIColor.white
         navigationItem.hidesBackButton = true
         setupLayout()
         checkIfLoggedIn()
     }
     
     func setupLayout(){
+        view.addSubview(titleLabel)
         view.addSubview(FBLoginButton)
         NSLayoutConstraint.activate([
+            
+            titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            titleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 100),
+            titleLabel.widthAnchor.constraint(equalTo: view.widthAnchor),
+            titleLabel.heightAnchor.constraint(equalToConstant: 100),
+            
             FBLoginButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            FBLoginButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            FBLoginButton.widthAnchor.constraint(equalToConstant: 200),
-            FBLoginButton.heightAnchor.constraint(equalToConstant: 100)
+            FBLoginButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -100),
+            FBLoginButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8),
+            FBLoginButton.heightAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8 * 51/315)
             ])
     }
     
