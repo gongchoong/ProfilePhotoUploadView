@@ -96,32 +96,32 @@ class PhotoUploadCell: UITableViewCell {
                 self.getImage(addressForUrl1, completion: { (result1) in
                     if let image1 = result1{
                         UIImageArray["1"] = (image1,false)
-                        self.mainViewController?.startingUrlArray["1"] = addressForUrl1
+                        self.mainViewController?.viewModel?.startingUrlArray["1"] = addressForUrl1
                     }
                     self.getImage(addressForUrl2, completion: { (result2) in
                         if let image2 = result2{
                             UIImageArray["2"] = (image2, false)
-                            self.mainViewController?.startingUrlArray["2"] = addressForUrl2
+                            self.mainViewController?.viewModel?.startingUrlArray["2"] = addressForUrl2
                         }
                         self.getImage(addressForUrl3, completion: { (result3) in
                             if let image3 = result3{
                                 UIImageArray["3"] = (image3, false)
-                                self.mainViewController?.startingUrlArray["3"] = addressForUrl3
+                                self.mainViewController?.viewModel?.startingUrlArray["3"] = addressForUrl3
                             }
                             self.getImage(addressForUrl4, completion: { (result4) in
                                 if let image4 = result4{
                                     UIImageArray["4"] = (image4, false)
-                                    self.mainViewController?.startingUrlArray["4"] = addressForUrl4
+                                    self.mainViewController?.viewModel?.startingUrlArray["4"] = addressForUrl4
                                 }
                                 self.getImage(addressForUrl5, completion: { (result5) in
                                     if let image5 = result5{
                                         UIImageArray["5"] = (image5, false)
-                                        self.mainViewController?.startingUrlArray["5"] = addressForUrl5
+                                        self.mainViewController?.viewModel?.startingUrlArray["5"] = addressForUrl5
                                     }
                                     self.getImage(addressForUrl6, completion: { (result6) in
                                         if let image6 = result6{
                                             UIImageArray["6"] = (image6, false)
-                                            self.mainViewController?.startingUrlArray["6"] = addressForUrl6
+                                            self.mainViewController?.viewModel?.startingUrlArray["6"] = addressForUrl6
                                             completion(UIImageArray, user)
                                         }else{
                                             completion(UIImageArray, user)
