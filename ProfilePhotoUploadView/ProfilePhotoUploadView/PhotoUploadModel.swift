@@ -121,6 +121,44 @@ extension PhotoUploadModel: UICollectionViewDataSource, UICollectionViewDelegate
         }
     }
     
+    fileprivate func reorderItems(coordinator: UICollectionViewDropCoordinator, destinationIndexPath: IndexPath, collectionView: UICollectionView, completion: @escaping(_ sourceIndex: IndexPath, _ destinationIndex: IndexPath)->()){
+        if let item = coordinator.items.first, let sourceIndexPath = item.sourceIndexPath{
+            //prevent crash
+            if destinationIndexPath.row < permutationArray.count && sourceIndexPath.row < permutationArray.count{
+                collectionView.performBatchUpdates({
+                    //only changing permutation array not the actual image array
+                    permutationArray.remove(at: sourceIndexPath.item)
+                    permutationArray.insert(item.dragItem.localObject as! String, at: destinationIndexPath.item)
+                    collectionView.deleteItems(at: [sourceIndexPath])
+                    collectionView.insertItems(at: [destinationIndexPath])
+                }, completion: nil)
+                coordinator.drop(item.dragItem, toItemAt: destinationIndexPath)
+                completion(sourceIndexPath, destinationIndexPath)
+            }
+        }
+    }
+    
+    //reassign tags for newly ordered image cells for deletion function
+    fileprivate func reassignTagNumber(_ source: IndexPath, _ destination: IndexPath){
+        if let collectionView = self.collectionView{
+            var start: Int
+            var end: Int
+            //do not need to start from 0
+            if source.row > destination.row{
+                start = destination.row
+                end = source.row
+            }else{
+                start = source.row
+                end = destination.row
+            }
+            for i in start...end{
+                let indexPath = IndexPath(row: i, section: 0)
+                let cell = collectionView.cellForItem(at: indexPath) as! ImageCell
+                cell.imageDeleteButton.tag = i
+            }
+        }
+    }
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return itemCount
     }
@@ -165,40 +203,6 @@ extension PhotoUploadModel: UICollectionViewDataSource, UICollectionViewDelegate
                 self.presentPhotoPermissionDeniedAlertAction()
             case .restricted:
                 self.presentPhotoPermissionDeniedAlertAction()
-            }
-        }
-    }
-    
-    fileprivate func reorderItems(coordinator: UICollectionViewDropCoordinator, destinationIndexPath: IndexPath, collectionView: UICollectionView, completion: @escaping(_ sourceIndex: IndexPath, _ destinationIndex: IndexPath)->()){
-        if let item = coordinator.items.first, let sourceIndexPath = item.sourceIndexPath{
-            if destinationIndexPath.row < permutationArray.count && sourceIndexPath.row < permutationArray.count{
-                collectionView.performBatchUpdates({
-                    permutationArray.remove(at: sourceIndexPath.item)
-                    permutationArray.insert(item.dragItem.localObject as! String, at: destinationIndexPath.item)
-                    collectionView.deleteItems(at: [sourceIndexPath])
-                    collectionView.insertItems(at: [destinationIndexPath])
-                }, completion: nil)
-                coordinator.drop(item.dragItem, toItemAt: destinationIndexPath)
-                completion(sourceIndexPath, destinationIndexPath)
-            }
-        }
-    }
-    
-    fileprivate func reassignTagNumber(_ source: IndexPath, _ destination: IndexPath){
-        if let collectionView = self.collectionView{
-            var start: Int
-            var end: Int
-            if source.row > destination.row{
-                start = destination.row
-                end = source.row
-            }else{
-                start = source.row
-                end = destination.row
-            }
-            for i in start...end{
-                let indexPath = IndexPath(row: i, section: 0)
-                let cell = collectionView.cellForItem(at: indexPath) as! ImageCell
-                cell.imageDeleteButton.tag = i
             }
         }
     }

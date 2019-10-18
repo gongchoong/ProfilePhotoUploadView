@@ -31,6 +31,37 @@ class LoginViewController: UIViewController {
         return button
     }()
     
+    let emailTextField: UITextField = {
+        let textField = UITextField()
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        textField.placeholder = " Email"
+        textField.layer.borderWidth = 0.5
+        textField.layer.cornerRadius = 5
+        return textField
+    }()
+    
+    let passwordTextField: UITextField = {
+        let textField = UITextField()
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        textField.placeholder = " Password"
+        textField.isSecureTextEntry = true
+        textField.layer.borderWidth = 0.5
+        textField.layer.cornerRadius = 5
+        return textField
+    }()
+    
+    let loginButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.backgroundColor = UIColor.init(red: 241/255, green: 196/255, blue: 15/255, alpha: 1)
+        button.setTitle("Login", for: .normal)
+        button.titleLabel?.textAlignment = .center
+        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
+        button.addTarget(self, action: #selector(handleEmailLogin), for: .touchUpInside)
+        button.layer.cornerRadius = 5
+        return button
+    }()
+    
     var mainViewController: MainViewController?
     
     override func viewDidLoad() {
@@ -43,7 +74,10 @@ class LoginViewController: UIViewController {
     
     func setupLayout(){
         view.addSubview(titleLabel)
-        view.addSubview(FBLoginButton)
+        view.addSubview(emailTextField)
+        view.addSubview(passwordTextField)
+        view.addSubview(loginButton)
+        
         NSLayoutConstraint.activate([
             
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -51,10 +85,20 @@ class LoginViewController: UIViewController {
             titleLabel.widthAnchor.constraint(equalTo: view.widthAnchor),
             titleLabel.heightAnchor.constraint(equalToConstant: 100),
             
-            FBLoginButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            FBLoginButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -100),
-            FBLoginButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8),
-            FBLoginButton.heightAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8 * 51/315)
+            emailTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            emailTextField.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            emailTextField.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.6),
+            emailTextField.heightAnchor.constraint(equalToConstant: 40),
+            
+            passwordTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            passwordTextField.topAnchor.constraint(equalTo: emailTextField.bottomAnchor, constant: 10),
+            passwordTextField.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.6),
+            passwordTextField.heightAnchor.constraint(equalToConstant: 40),
+            
+            loginButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            loginButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -100),
+            loginButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8),
+            loginButton.heightAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8 * 51/315)
             ])
     }
     
@@ -72,6 +116,84 @@ class LoginViewController: UIViewController {
             case .success:
                 print("Logged in!")
                 self.loginFirebase()
+            }
+        }
+    }
+    
+    @objc func handleEmailLogin(){
+        if let email = emailTextField.text{
+            Auth.auth().fetchSignInMethods(forEmail: email) { (signInMethods, error) in
+                // This returns the same array as fetchProviders(forEmail:completion:) but for email
+                // provider identified by 'password' string, signInMethods would contain 2
+                // different strings:
+                // 'emailLink' if the user previously signed in with an email/link
+                // 'password' if the user has a password.
+                // A user could have both.
+                if let err = error{
+                    print(err.localizedDescription)
+                }else{
+                    if let methods = signInMethods{
+                        if !methods.contains(EmailPasswordAuthSignInMethod){
+                            print("user can sign in with email/password")
+                        }else{
+                            self.signInExistingUser()
+                        }
+                    }else{
+                        self.createNewUser()
+                    }
+                }
+            }
+        }
+    }
+    
+    fileprivate func createNewUser(){
+        if let email = emailTextField.text, let password = passwordTextField.text{
+            Auth.auth().createUser(withEmail: email, password: password) { (result, error) in
+                if let err = error {
+                    print(err.localizedDescription)
+                }else{
+                    if let result = result{
+                        self.updateNewUserToDatabase(result, {
+                            self.loadMainViewController()
+                        })
+                    }else{
+                        print("error: result DNE")
+                    }
+                }
+            }
+        }else{
+            print("email or password dne")
+        }
+    }
+    
+    fileprivate func updateNewUserToDatabase(_ result: AuthDataResult, _ completion: @escaping()->()){
+        if let email = result.user.email{
+            let uid = result.user.uid
+            Database.database().reference().child("Users").child(uid).observeSingleEvent(of: .value) { (snapshot) in
+                if !snapshot.exists(){
+                    Database.database().reference().child("Users").child(uid).updateChildValues(["email": email], withCompletionBlock: { (error, ref) in
+                        if let err = error{
+                            print(err.localizedDescription)
+                        }else{
+                            print("successfully created a new user")
+                            completion()
+                        }
+                    })
+                }else{
+                    print("error: snapshot exists, user must be signed in")
+                }
+            }
+        }
+    }
+    
+    fileprivate func signInExistingUser(){
+        if let email = emailTextField.text, let password = passwordTextField.text{
+            Auth.auth().signIn(withEmail: email, password: password) { (result, error) in
+                if let err = error {
+                    print(err.localizedDescription)
+                }else{
+                    self.loadMainViewController()
+                }
             }
         }
     }

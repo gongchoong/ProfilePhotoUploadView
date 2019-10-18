@@ -66,13 +66,21 @@ class MainViewController: UIViewController, ProfileImageUploadModelDelegate, UIN
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Logout", style: .plain, target: self, action: #selector(handleLogout))
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Save", style: .plain, target: self, action: #selector(handleSave))
         
-        setupViewModel()
+        checkIfLoggedIn()
+    }
+    
+    //if logged in, setup tableview. If not logged in, show loginController
+    fileprivate func checkIfLoggedIn(){
+        if Auth.auth().currentUser?.uid == nil{
+            presentLoginViewController()
+        }else{
+            setupViewModel()
+        }
     }
     
     func setupViewModel(){
         viewModel = MainViewModel(tableView, self)
         viewModel?.populate()
-        print("viewmodel is initialized")
         
         tableView.delegate = viewModel
         tableView.dataSource = viewModel
@@ -86,18 +94,12 @@ class MainViewController: UIViewController, ProfileImageUploadModelDelegate, UIN
             tableView.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
             ])
-        
-        checkIfLoggedIn()
     }
     
-    fileprivate func checkIfLoggedIn(){
-        if Auth.auth().currentUser?.uid != nil{
-            //populateViewModel()
-        }else{
-            let loginViewController = LoginViewController()
-            loginViewController.mainViewController = self
-            navigationController?.pushViewController(loginViewController, animated: true)
-        }
+    fileprivate func presentLoginViewController(){
+        let loginViewController = LoginViewController()
+        loginViewController.mainViewController = self
+        navigationController?.pushViewController(loginViewController, animated: true)
     }
     
     @objc func handleLogout(){
@@ -116,12 +118,6 @@ class MainViewController: UIViewController, ProfileImageUploadModelDelegate, UIN
         UserProfile.current = nil
         
         navigationController?.popViewController(animated: true)
-    }
-    
-    fileprivate func populateViewModel(){
-        if let model = viewModel{
-            model.populate()
-        }
     }
     
     @objc func handleSave(){

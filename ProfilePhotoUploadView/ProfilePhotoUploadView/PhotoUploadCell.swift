@@ -34,7 +34,7 @@ class PhotoUploadCell: UITableViewCell {
     
     fileprivate func setup(){
         activateHUD()
-        getUiImageArrayFromURLs { (imageDic, user) in
+        getProfileImageArrayFromURLs { (imageDic, user) in
             self.getPermutationArray(imageDic.count, completion: { (permutationArray) in
                 self.model = PhotoUploadModel(self.collectionView, imageDic, user, permutationArray, self.mainViewController)
                 self.collectionView.dataSource = self.model
@@ -67,26 +67,11 @@ class PhotoUploadCell: UITableViewCell {
         })
     }
     
-    fileprivate func retrieveImageArrayFromDictionary(completion: @escaping([String], User)->()){
-        fetchCurrentUser { (user) in
-            var imageArray: [String] = []
-            if let imageDic = user.imageUrls{
-                for i in 1...imageDic.count{
-                    if let imageUrl = imageDic["url\(i)"]{
-                        imageArray.append(imageUrl)
-                    }
-                    completion(imageArray, user)
-                }
-            }else{
-                completion(imageArray, user)
-            }
-        }
-    }
-    
-    fileprivate func getUiImageArrayFromURLs(completion: @escaping([String : (UIImage, Bool)], User)->()){
+    //get proflie image urls of current user from the db, then assign the urls to the startingUrlArray in MainViewModel
+    fileprivate func getProfileImageArrayFromURLs(completion: @escaping([String : (UIImage, Bool)], User)->()){
         fetchCurrentUser { (user) in
             if let imageDic = user.imageUrls{
-                var UIImageArray: [String : (UIImage, Bool)] = [:]
+                var imageArray: [String : (UIImage, Bool)] = [:]
                 let addressForUrl1 = imageDic["url1"]
                 let addressForUrl2 = imageDic["url2"]
                 let addressForUrl3 = imageDic["url3"]
@@ -95,36 +80,36 @@ class PhotoUploadCell: UITableViewCell {
                 let addressForUrl6 = imageDic["url6"]
                 self.getImage(addressForUrl1, completion: { (result1) in
                     if let image1 = result1{
-                        UIImageArray["1"] = (image1,false)
+                        imageArray["1"] = (image1,false)
                         self.mainViewController?.viewModel?.startingUrlArray["1"] = addressForUrl1
                     }
                     self.getImage(addressForUrl2, completion: { (result2) in
                         if let image2 = result2{
-                            UIImageArray["2"] = (image2, false)
+                            imageArray["2"] = (image2, false)
                             self.mainViewController?.viewModel?.startingUrlArray["2"] = addressForUrl2
                         }
                         self.getImage(addressForUrl3, completion: { (result3) in
                             if let image3 = result3{
-                                UIImageArray["3"] = (image3, false)
+                                imageArray["3"] = (image3, false)
                                 self.mainViewController?.viewModel?.startingUrlArray["3"] = addressForUrl3
                             }
                             self.getImage(addressForUrl4, completion: { (result4) in
                                 if let image4 = result4{
-                                    UIImageArray["4"] = (image4, false)
+                                    imageArray["4"] = (image4, false)
                                     self.mainViewController?.viewModel?.startingUrlArray["4"] = addressForUrl4
                                 }
                                 self.getImage(addressForUrl5, completion: { (result5) in
                                     if let image5 = result5{
-                                        UIImageArray["5"] = (image5, false)
+                                        imageArray["5"] = (image5, false)
                                         self.mainViewController?.viewModel?.startingUrlArray["5"] = addressForUrl5
                                     }
                                     self.getImage(addressForUrl6, completion: { (result6) in
                                         if let image6 = result6{
-                                            UIImageArray["6"] = (image6, false)
+                                            imageArray["6"] = (image6, false)
                                             self.mainViewController?.viewModel?.startingUrlArray["6"] = addressForUrl6
-                                            completion(UIImageArray, user)
+                                            completion(imageArray, user)
                                         }else{
-                                            completion(UIImageArray, user)
+                                            completion(imageArray, user)
                                         }
                                     })
                                 })
@@ -135,18 +120,6 @@ class PhotoUploadCell: UITableViewCell {
             }else{
                 completion([String : (UIImage, Bool)](), user)
             }
-        }
-    }
-    
-    fileprivate func getPermutationArray(_ imageDicCount: Int, completion: @escaping([String])->()){
-        var array: [String] = []
-        if imageDicCount > 0{
-            for i in 1...imageDicCount{
-                array.append("\(i)")
-            }
-            completion(array)
-        }else{
-            completion(array)
         }
     }
     
@@ -163,6 +136,35 @@ class PhotoUploadCell: UITableViewCell {
             }
         }else{
             completion(nil)
+        }
+    }
+    
+    //assign each image's starting position to permutationArray
+    fileprivate func getPermutationArray(_ imageDicCount: Int, completion: @escaping([String])->()){
+        var array: [String] = []
+        if imageDicCount > 0{
+            for i in 1...imageDicCount{
+                array.append("\(i)")
+            }
+            completion(array)
+        }else{
+            completion(array)
+        }
+    }
+    
+    fileprivate func retrieveImageArrayFromDictionary(completion: @escaping([String], User)->()){
+        fetchCurrentUser { (user) in
+            var imageArray: [String] = []
+            if let imageDic = user.imageUrls{
+                for i in 1...imageDic.count{
+                    if let imageUrl = imageDic["url\(i)"]{
+                        imageArray.append(imageUrl)
+                    }
+                    completion(imageArray, user)
+                }
+            }else{
+                completion(imageArray, user)
+            }
         }
     }
     

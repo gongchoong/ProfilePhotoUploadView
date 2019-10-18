@@ -49,6 +49,7 @@ class MainViewModel: NSObject{
     func populate(){
         fetchCurrentUser { (user) in
             self.user = user
+            //remove all photo items before to prevent error
             self.removeAllItems()
             let photoItem = ProfileModelPhotosItem()
             let infoItem = ProfileModelInformationItem()
@@ -147,6 +148,7 @@ class MainViewModel: NSObject{
         uploadIndividualImageToStorage(firstImageData, "1") { (firstImageUrl) in
             if let url1 = firstImageUrl{
                 self.docData["imageUrls/url1"] = url1
+                self.setImageDicBoolValueToFalse(0)
             }else{
                 if permutationArray.count >= 1{
                     let startingArrayIndexAfterPermutation = permutationArray[0]
@@ -162,6 +164,7 @@ class MainViewModel: NSObject{
             self.uploadIndividualImageToStorage(secondImageData, "2", { (secondImageUrl) in
                 if let url2 = secondImageUrl{
                     self.docData["imageUrls/url2"] = url2
+                    self.setImageDicBoolValueToFalse(1)
                 }else{
                     if permutationArray.count >= 2{
                         let startingArrayIndexAfterPermutation = permutationArray[1]
@@ -177,6 +180,7 @@ class MainViewModel: NSObject{
                 self.uploadIndividualImageToStorage(thirdImageData, "3", { (thirdImageUrl) in
                     if let url3 = thirdImageUrl{
                         self.docData["imageUrls/url3"] = url3
+                        self.setImageDicBoolValueToFalse(2)
                     }else{
                         if permutationArray.count >= 3{
                             let startingArrayIndexAfterPermutation = permutationArray[2]
@@ -192,6 +196,7 @@ class MainViewModel: NSObject{
                     self.uploadIndividualImageToStorage(fourthImageData, "4", { (fourthImageUrl) in
                         if let url4 = fourthImageUrl{
                             self.docData["imageUrls/url4"] = url4
+                            self.setImageDicBoolValueToFalse(3)
                         }else{
                             if permutationArray.count >= 4{
                                 let startingArrayIndexAfterPermutation = permutationArray[3]
@@ -207,6 +212,7 @@ class MainViewModel: NSObject{
                         self.uploadIndividualImageToStorage(fifthImageData, "5", { (fifthImageUrl) in
                             if let url5 = fifthImageUrl{
                                 self.docData["imageUrls/url5"] = url5
+                                self.setImageDicBoolValueToFalse(4)
                             }else{
                                 if permutationArray.count >= 5{
                                     let startingArrayIndexAfterPermutation = permutationArray[4]
@@ -222,6 +228,7 @@ class MainViewModel: NSObject{
                             self.uploadIndividualImageToStorage(sixthImageData, "6", { (sixthImageUrl) in
                                 if let url6 = sixthImageUrl{
                                     self.docData["imageUrls/url6"] = url6
+                                    self.setImageDicBoolValueToFalse(5)
                                 }else{
                                     if permutationArray.count >= 6{
                                         let startingArrayIndexAfterPermutation = permutationArray[5]
@@ -281,6 +288,15 @@ class MainViewModel: NSObject{
         }else{
             print("data does not exist: image \(order) upload failed")
             completion(nil)
+        }
+    }
+    
+    fileprivate func setImageDicBoolValueToFalse(_ permutationArrayIndex: Int){
+        if let photoUploadCell = self.tableView?.cellForRow(at: ProfileModelItemType.photos.index()) as? PhotoUploadCell{
+            if let photoUploadModel = photoUploadCell.model{
+                let permutationArray = photoUploadModel.permutationArray
+                photoUploadModel.imageDic?[permutationArray[permutationArrayIndex]]?.1 = false
+            }
         }
     }
     
