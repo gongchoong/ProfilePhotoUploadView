@@ -13,11 +13,28 @@ import Firebase
 
 class LoginViewController: UIViewController {
     
+    fileprivate let backgroundImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFill
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.image = UIImage(named: "blankImage")
+        return imageView
+    }()
+    
+    fileprivate let blurEffectView: UIVisualEffectView = {
+        let blurEffect = UIBlurEffect(style: UIBlurEffect.Style.dark)
+        let blurEffectView = UIVisualEffectView(effect: blurEffect)
+        blurEffectView.alpha = 0.9
+        blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        return blurEffectView
+    }()
+    
     let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.systemFont(ofSize: 34)
         label.text = "Profile Photo Upload View"
+        label.font = UIFont(name: "Lato-Bold", size: 26)
+        label.textColor = UIColor.white
         label.textAlignment = .center
         return label
     }()
@@ -37,6 +54,8 @@ class LoginViewController: UIViewController {
         textField.placeholder = " Email"
         textField.layer.borderWidth = 0.5
         textField.layer.cornerRadius = 5
+        textField.layer.borderColor = UIColor.white.cgColor
+        textField.backgroundColor = UIColor.white
         return textField
     }()
     
@@ -47,6 +66,8 @@ class LoginViewController: UIViewController {
         textField.isSecureTextEntry = true
         textField.layer.borderWidth = 0.5
         textField.layer.cornerRadius = 5
+        textField.layer.borderColor = UIColor.white.cgColor
+        textField.backgroundColor = UIColor.white
         return textField
     }()
     
@@ -69,16 +90,25 @@ class LoginViewController: UIViewController {
         view.backgroundColor = UIColor.white
         navigationItem.hidesBackButton = true
         setupLayout()
-        checkIfLoggedIn()
     }
     
     func setupLayout(){
+        
+        blurEffectView.frame = backgroundImageView.bounds
+        backgroundImageView.addSubview(blurEffectView)
+        
+        view.addSubview(backgroundImageView)
         view.addSubview(titleLabel)
         view.addSubview(emailTextField)
         view.addSubview(passwordTextField)
         view.addSubview(loginButton)
         
         NSLayoutConstraint.activate([
+            
+            backgroundImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            backgroundImageView.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor),
+            backgroundImageView.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor),
+            backgroundImageView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             titleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 100),
@@ -102,24 +132,6 @@ class LoginViewController: UIViewController {
             ])
     }
     
-    @objc func handleLogin(){
-        deactivateLoginButton()
-        let loginManager = LoginManager()
-        loginManager.logIn(readPermissions: [.publicProfile, .email], viewController: self) { loginResult in
-            switch loginResult {
-            case .failed(let error):
-                self.activateLoginButton()
-                print(error)
-            case .cancelled:
-                self.activateLoginButton()
-                print("User cancelled login.")
-            case .success:
-                print("Logged in!")
-                self.loginFirebase()
-            }
-        }
-    }
-    
     @objc func handleEmailLogin(){
         if let email = emailTextField.text{
             Auth.auth().fetchSignInMethods(forEmail: email) { (signInMethods, error) in
@@ -129,16 +141,19 @@ class LoginViewController: UIViewController {
                 // 'emailLink' if the user previously signed in with an email/link
                 // 'password' if the user has a password.
                 // A user could have both.
+                self.deactivateLoginButton()
                 if let err = error{
                     print(err.localizedDescription)
                 }else{
                     if let methods = signInMethods{
                         if !methods.contains(EmailPasswordAuthSignInMethod){
-                            print("user can sign in with email/password")
+                            self.activateLoginButton()
                         }else{
+                            //email already exists in db
                             self.signInExistingUser()
                         }
                     }else{
+                        //if email does not exist
                         self.createNewUser()
                     }
                 }
@@ -198,19 +213,52 @@ class LoginViewController: UIViewController {
         }
     }
     
-    fileprivate func loginFirebase(){
-        let credential = FacebookAuthProvider.credential(withAccessToken: AccessToken.current!.authenticationToken)
-        Auth.auth().signInAndRetrieveData(with: credential) { (result, error) in
-            if let error = error {
-                print(error.localizedDescription)
-                return
+    fileprivate func registerNewUser(_ response: MyProfileRequest.Response, _ completion: @escaping()->()){
+        if let uid = Auth.auth().currentUser?.uid, let name = response.name{
+            Database.database().reference().child("Users").child(uid).observeSingleEvent(of: .value) { (snapshot) in
+                if !snapshot.exists(){
+                    Database.database().reference().child("Users").child(uid).updateChildValues(["name": name])
+                    print("created a new user")
+                    completion()
+                }else{
+                    print("user already exists")
+                    completion()
+                }
             }
-            print("user is signed in to firebase")
-            self.getGraphData(completion: { (response) in
-                self.registerNewUser(response, {
-                    self.loadMainViewController()
-                })
-            })
+        }
+    }
+    
+    fileprivate func loadMainViewController(){
+        if let mainController = mainViewController{
+            mainController.viewModel?.getLoggedInUser()
+            navigationController?.popViewController(animated: true)
+            activateLoginButton()
+        }
+    }
+    
+    fileprivate func activateLoginButton(){
+        self.loginButton.isEnabled = true
+    }
+    
+    fileprivate func deactivateLoginButton(){
+        self.loginButton.isEnabled = false
+    }
+    
+    @objc func handleLogin(){
+        deactivateLoginButton()
+        let loginManager = LoginManager()
+        loginManager.logIn(readPermissions: [.publicProfile, .email], viewController: self) { loginResult in
+            switch loginResult {
+            case .failed(let error):
+                self.activateLoginButton()
+                print(error)
+            case .cancelled:
+                self.activateLoginButton()
+                print("User cancelled login.")
+            case .success:
+                print("Logged in!")
+                self.loginFirebase()
+            }
         }
     }
     
@@ -227,45 +275,19 @@ class LoginViewController: UIViewController {
         connection.start()
     }
     
-    fileprivate func registerNewUser(_ response: MyProfileRequest.Response, _ completion: @escaping()->()){
-        if let uid = Auth.auth().currentUser?.uid, let name = response.name{
-            Database.database().reference().child("Users").child(uid).observeSingleEvent(of: .value) { (snapshot) in
-                if !snapshot.exists(){
-                    Database.database().reference().child("Users").child(uid).updateChildValues(["name": name])
-                    print("created a new user")
-                    completion()
-                }else{
-                    print("user already exists")
-                    completion()
-                }
+    fileprivate func loginFirebase(){
+        let credential = FacebookAuthProvider.credential(withAccessToken: AccessToken.current!.authenticationToken)
+        Auth.auth().signInAndRetrieveData(with: credential) { (result, error) in
+            if let error = error {
+                print(error.localizedDescription)
+                return
             }
+            print("user is signed in to firebase")
+            self.getGraphData(completion: { (response) in
+                self.registerNewUser(response, {
+                    self.loadMainViewController()
+                })
+            })
         }
-    }
-
-    fileprivate func checkIfLoggedIn(){
-        if Auth.auth().currentUser != nil{
-            print("already logged in!!!")
-            loadMainViewController()
-        }
-    }
-    
-    fileprivate func prepareMainViewModel(){
-        if let vc = self.mainViewController{
-            vc.setupViewModel()
-        }
-    }
-    
-    fileprivate func loadMainViewController(){
-        let mainViewController = MainViewController()
-        navigationController?.pushViewController(mainViewController, animated: true)
-        activateLoginButton()
-    }
-    
-    fileprivate func activateLoginButton(){
-        self.FBLoginButton.isEnabled = true
-    }
-    
-    fileprivate func deactivateLoginButton(){
-        self.FBLoginButton.isEnabled = false
     }
 }

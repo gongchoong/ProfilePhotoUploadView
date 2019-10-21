@@ -2,367 +2,196 @@
 //  MainViewModel.swift
 //  ProfilePhotoUploadView
 //
-//  Created by chris davis on 8/28/19.
+//  Created by chris davis on 10/19/19.
 //  Copyright © 2019 chris davis. All rights reserved.
 //
 
 import Foundation
 import UIKit
 import Firebase
-import JGProgressHUD
 
-enum ProfileModelItemType {
-    case photos
-    case information
+enum MainViewItemType {
+    case profileImage
+    case editProfile
     
-    func index() -> IndexPath{
+    func index() -> IndexPath {
         switch self {
-        case .photos:
+        case .profileImage:
             return IndexPath(row: 0, section: 0)
-        case .information:
+        case .editProfile:
             return IndexPath(row: 1, section: 0)
         }
     }
 }
 
-protocol ProfileModelItem{
-    var type: ProfileModelItemType {get}
-    var name: String {get}
+protocol MainViewItem{
+    var type: MainViewItemType {get}
+    var title: String {get}
 }
 
-class MainViewModel: NSObject{
+class MainViewModel: NSObject {
     
-    var tableView: UITableView?
-    var items = [ProfileModelItem]()
     weak var mainViewController: MainViewController?
-    var user: User?
+    var tableView: UITableView?
+    var items = [MainViewItem]()
+    var loggedInUser: User?
     
-    var startingUrlArray: [String: Any] = [:]
-    var docData: [String: Any] = [:]
-    let hud = JGProgressHUD(style: .light)
-    
-    init(_ tv: UITableView, _ vc: MainViewController) {
-        tableView = tv
+    init(_ vc: MainViewController, _ tv: UITableView) {
+        super.init()
         mainViewController = vc
+        tableView = tv
+        
+        getLoggedInUser()
     }
     
-    func populate(){
-        fetchCurrentUser { (user) in
-            self.user = user
-            //remove all photo items before to prevent error
-            self.removeAllItems()
-            let photoItem = ProfileModelPhotosItem()
-            let infoItem = ProfileModelInformationItem()
-            
-            self.items.append(photoItem)
-            self.items.append(infoItem)
-            
-            DispatchQueue.main.async {
-                self.tableView?.reloadData()
-            }
-        }
-    }
-    
-    func removeAllItems(){
-        self.items.removeAll()
-        DispatchQueue.main.async {
-            self.tableView?.reloadData()
-        }
-    }
-    
-    fileprivate func fetchCurrentUser(completion: @escaping(User)->()) {
-        // fetch some Firebase Data
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        Database.database().reference().child("Users").child(uid).observeSingleEvent(of: .value, with: { (snapshot) in
-            guard let dictionary = snapshot.value as? [String: AnyObject] else { return }
-            let user = User(dictionary)
-            completion(user)
-        })
-    }
-    
-    func save(){
-        if let photoUploadCell = self.tableView?.cellForRow(at: ProfileModelItemType.photos.index()) as? PhotoUploadCell, let nameCell = self.tableView?.cellForRow(at: ProfileModelItemType.information.index()) as? DetailInfoCell{
-            if let photoUploadModel = photoUploadCell.model{
-                if let imageDic = photoUploadModel.imageDic{
-                    let permutationArray = photoUploadModel.permutationArray
-                    
-                    if imageDic.count > 0 && permutationArray.count > 0{
-                        activateHUDforSavingProfile()
-                        uploadData(imageDic, permutationArray, nameCell) { (result) in
-                            if result{
-                                print("Finished saving user profile")
-                            }else{
-                                print("Failed to save user profile")
-                            }
-                            self.deActivateHUDforSavingProfile()
-                        }
-                    }else{
-                        generateEmptyPhotoAlert()
-                    }
+    func getLoggedInUser(){
+        if let uid = Auth.auth().currentUser?.uid{
+            Database.database().reference().child("Users").child(uid).observeSingleEvent(of: .value) { (snapshot) in
+                if let dictionary = snapshot.value as? [String: AnyObject]{
+                    let user = User(dictionary)
+                    self.loggedInUser = user
+                    self.setup(user)
                 }
             }
         }
     }
     
-    fileprivate func uploadData(_ imageDic: [String: (UIImage, Bool)], _ permutationArray: [String], _ nameCell: DetailInfoCell, _ completion: @escaping (Bool)->()){
-        uploadImagesToStorage(imageDic, permutationArray) {
-            if let uid = Auth.auth().currentUser?.uid{
-                if let name = nameCell.textView.text{
-                    self.docData["name"] = name
-                }
-                
-                REF_USERS.child(uid).updateChildValues(self.docData, withCompletionBlock: { (error, ref) in
-                    if error != nil {
-                        completion(false)
-                    }
-                    completion(true)
-                })
-            }
-        }
-    }
-    
-    fileprivate func uploadImagesToStorage(_ imageDic: [String: (UIImage, Bool)], _ permutationArray: [String], _ completion: @escaping()->()){
-        var firstImageData: (UIImage, Bool)?
-        var secondImageData: (UIImage, Bool)?
-        var thirdImageData: (UIImage, Bool)?
-        var fourthImageData: (UIImage, Bool)?
-        var fifthImageData: (UIImage, Bool)?
-        var sixthImageData: (UIImage, Bool)?
+    fileprivate func setup(_ user: User){
+        items.removeAll()
+        let profileImageItem = ProfileImageItem()
+        let editProfileItem = EditProfileItem()
         
-        for i in 0...permutationArray.count - 1{
-            if i == 0{
-                firstImageData = imageDic[permutationArray[i]]
-            }else if i == 1{
-                secondImageData = imageDic[permutationArray[i]]
-            }else if i == 2{
-                thirdImageData = imageDic[permutationArray[i]]
-            }else if i == 3{
-                fourthImageData = imageDic[permutationArray[i]]
-            }else if i == 4{
-                fifthImageData = imageDic[permutationArray[i]]
-            }else if i == 5{
-                sixthImageData = imageDic[permutationArray[i]]
-            }
-        }
+        items.append(profileImageItem)
+        items.append(editProfileItem)
         
-        uploadIndividualImageToStorage(firstImageData, 1) { (firstImageUrl) in
-            if let url1 = firstImageUrl{
-                self.docData["imageUrls/url1"] = url1
-            }else{
-                if permutationArray.count >= 1{
-                    let startingArrayIndexAfterPermutation = permutationArray[0]
-                    if let startingUrl1 = self.startingUrlArray[startingArrayIndexAfterPermutation]{
-                        self.docData["imageUrls/url1"] = startingUrl1
-                    }else{
-                        self.docData["imageUrls/url1"] = NSNull()
+        if let backgroundImageView = mainViewController?.backgroundImageView{
+            setBackgroundImage(user) { (imageData) in
+                if imageData != nil{
+                    DispatchQueue.main.async {
+                        backgroundImageView.image = UIImage(data: imageData!)
+                        self.tableView?.reloadData()
                     }
                 }else{
-                    self.docData["imageUrls/url1"] = NSNull()
+                    DispatchQueue.main.async {
+                        backgroundImageView.image = UIImage(named: "blankImage")
+                        self.tableView?.reloadData()
+                    }
                 }
             }
-            self.uploadIndividualImageToStorage(secondImageData, 2, { (secondImageUrl) in
-                if let url2 = secondImageUrl{
-                    self.docData["imageUrls/url2"] = url2
-                }else{
-                    if permutationArray.count >= 2{
-                        let startingArrayIndexAfterPermutation = permutationArray[1]
-                        if let startingUrl2 = self.startingUrlArray[startingArrayIndexAfterPermutation]{
-                            self.docData["imageUrls/url2"] = startingUrl2
-                        }else{
-                            self.docData["imageUrls/url2"] = NSNull()
-                        }
-                    }else{
-                        self.docData["imageUrls/url2"] = NSNull()
-                    }
-                }
-                self.uploadIndividualImageToStorage(thirdImageData, 3, { (thirdImageUrl) in
-                    if let url3 = thirdImageUrl{
-                        self.docData["imageUrls/url3"] = url3
-                    }else{
-                        if permutationArray.count >= 3{
-                            let startingArrayIndexAfterPermutation = permutationArray[2]
-                            if let startingUrl3 = self.startingUrlArray[startingArrayIndexAfterPermutation]{
-                                self.docData["imageUrls/url3"] = startingUrl3
-                            }else{
-                                self.docData["imageUrls/url3"] = NSNull()
-                            }
-                        }else{
-                            self.docData["imageUrls/url3"] = NSNull()
-                        }
-                    }
-                    self.uploadIndividualImageToStorage(fourthImageData, 4, { (fourthImageUrl) in
-                        if let url4 = fourthImageUrl{
-                            self.docData["imageUrls/url4"] = url4
-                        }else{
-                            if permutationArray.count >= 4{
-                                let startingArrayIndexAfterPermutation = permutationArray[3]
-                                if let startingUrl4 = self.startingUrlArray[startingArrayIndexAfterPermutation]{
-                                    self.docData["imageUrls/url4"] = startingUrl4
-                                }else{
-                                    self.docData["imageUrls/url4"] = NSNull()
-                                }
-                            }else{
-                                self.docData["imageUrls/url4"] = NSNull()
-                            }
-                        }
-                        self.uploadIndividualImageToStorage(fifthImageData, 5, { (fifthImageUrl) in
-                            if let url5 = fifthImageUrl{
-                                self.docData["imageUrls/url5"] = url5
-                            }else{
-                                if permutationArray.count >= 5{
-                                    let startingArrayIndexAfterPermutation = permutationArray[4]
-                                    if let startingUrl5 = self.startingUrlArray[startingArrayIndexAfterPermutation]{
-                                        self.docData["imageUrls/url5"] = startingUrl5
-                                    }else{
-                                        self.docData["imageUrls/url5"] = NSNull()
-                                    }
-                                }else{
-                                    self.docData["imageUrls/url5"] = NSNull()
-                                }
-                            }
-                            self.uploadIndividualImageToStorage(sixthImageData, 6, { (sixthImageUrl) in
-                                if let url6 = sixthImageUrl{
-                                    self.docData["imageUrls/url6"] = url6
-                                }else{
-                                    if permutationArray.count >= 6{
-                                        let startingArrayIndexAfterPermutation = permutationArray[5]
-                                        if let startingUrl6 = self.startingUrlArray[startingArrayIndexAfterPermutation]{
-                                            self.docData["imageUrls/url6"] = startingUrl6
-                                        }else{
-                                            self.docData["imageUrls/url6"] = NSNull()
-                                        }
-                                    }else{
-                                        self.docData["imageUrls/url6"] = NSNull()
-                                    }
-                                }
-                                completion()
-                            })
-                        })
-                    })
-                })
-            })
         }
+    
     }
     
-    fileprivate func uploadIndividualImageToStorage(_ imageData: (UIImage, Bool)?, _ order: Int,_ completion: @escaping(String?)->()){
-        if let data = imageData{
-            if data.1{
-                let filename = UUID().uuidString
-                let ref = Storage.storage().reference(withPath: "/profile_images/\(filename)")
-                let selectedImage = data.0
-                
-                guard var uploadData = selectedImage.jpegData(compressionQuality: 1.0) else { return }
-                if uploadData.count > MAX_IMAGE_SIZE_BYTES {
-                    let compRate = CGFloat(MAX_IMAGE_SIZE_BYTES) / CGFloat(uploadData.count)
-                    if let tempData = selectedImage.jpegData(compressionQuality: compRate) {
-                        uploadData = tempData
-                    }
-                }
-                
-                ref.putData(uploadData, metadata: nil) { (nil, err) in
-                    if let err = err {
-                        print("Failed to upload image to storage: ", err)
+    fileprivate func setBackgroundImage(_ user: User, _ completion: @escaping(Data?) -> ()){
+        if let backgroundImageURL = user.getProfileImageUrl(){
+            if let url = URL(string: backgroundImageURL){
+                getData(url) { (data, response, error) in
+                    if error == nil{
+                        if let imageData = data {
+                            completion(imageData)
+                        }else{
+                            completion(nil)
+                        }
+                    }else{
                         completion(nil)
                     }
                     
-                    ref.downloadURL(completion: { (url, err) in
-                        if let err = err {
-                            print("Failed to retrieve download url: ", err)
-                            completion(nil)
-                        }
-                        print("successfully uploaded image \(order))")
-                        let imageUrl = url?.absoluteString
-                        completion(imageUrl)
-                    })
                 }
             }else{
-                print("image is not changed: not uploading image \(order)")
                 completion(nil)
             }
         }else{
-            print("data does not exist: image \(order) upload failed")
             completion(nil)
         }
     }
     
-    fileprivate func activateHUDforSavingProfile(){
-        if let vc = self.mainViewController{
-            self.hud.textLabel.text = "Saving profile"
-            self.hud.show(in: vc.view)
-            vc.navigationItem.rightBarButtonItem?.isEnabled = false
+    fileprivate func getData(_ url: URL, _ completion: @escaping (Data?, URLResponse?, Error?)->()){
+        URLSession.shared.dataTask(with: url, completionHandler: completion).resume()
+    }
+    
+    fileprivate func assignCellImages(_ cell: UserProfileImageCell){
+        if self.loggedInUser?.getProfileImageUrl() != nil{
+            cell.profileImageView.image = mainViewController?.backgroundImageView.image
+        }else{
+            cell.profileImageView.image = UIImage(named: "addImg")
+        }
+        if let user = loggedInUser{
+            cell.nameLabel.text = user.name
+        }else{
+            cell.nameLabel.text = nil
         }
     }
     
-    fileprivate func deActivateHUDforSavingProfile(){
-        if let vc = self.mainViewController{
-            self.hud.dismiss()
-            vc.navigationItem.rightBarButtonItem?.isEnabled = true
-        }
-    }
-    
-    fileprivate func generateEmptyPhotoAlert(){
-        if let vc = self.mainViewController{
-            let alertController = UIAlertController(title: "You need to upload at least one profile photo", message: "", preferredStyle: .alert)
-            let action = UIAlertAction(title: "Ok", style: .cancel, handler: nil)
-            alertController.addAction(action)
-            vc.present(alertController, animated: true, completion: nil)
-        }
+    func unassignImagesBeforeSigningOut(){
+       self.loggedInUser = nil
+        tableView?.reloadData()
     }
 }
 
-extension MainViewModel: UITableViewDataSource, UITableViewDelegate{
+extension MainViewModel: UITableViewDelegate, UITableViewDataSource{
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if self.items.count > 0{
-            return items.count
-        }else{
-            return 0
-        }
+        return items.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        switch self.items[indexPath.row].type {
-        case .photos:
-            let cell = tableView.dequeueReusableCell(withIdentifier: PhotoUploadCell.identifier, for: indexPath) as! PhotoUploadCell
-            cell.mainViewController = self.mainViewController
-            return cell
-        case .information:
-            let cell = tableView.dequeueReusableCell(withIdentifier: DetailInfoCell.identifier, for: indexPath) as! DetailInfoCell
-            cell.label.text = self.items[indexPath.row].name
-            cell.textView.text = user?.name
-            return cell
+        if indexPath.row < items.count{
+            switch items[indexPath.row].type {
+            case .profileImage:
+                let cell = tableView.dequeueReusableCell(withIdentifier: UserProfileImageCell.identifier, for: indexPath) as! UserProfileImageCell
+                cell.profileImageView.layer.cornerRadius = tableView.frame.size.height * 0.4 * 0.4 * 0.5
+                cell.selectionStyle = .none
+                assignCellImages(cell)
+                return cell
+            case .editProfile:
+                let cell = tableView.dequeueReusableCell(withIdentifier: UserProfileMenuCell.identifier, for: indexPath) as! UserProfileMenuCell
+                cell.titleLabel.text = items[indexPath.row].title
+                cell.selectionStyle = .none
+                return cell
+            }
+        }else{
+            return UITableViewCell()
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        switch items[indexPath.row].type {
+        case .editProfile:
+            mainViewController?.loadUserInfoController()
+        default:
+            return
         }
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        switch self.items[indexPath.row].type {
-        case .photos:
-            return screenHeight*0.4
-        case .information:
-            return screenHeight*0.1
+        if indexPath.row < items.count{
+            switch items[indexPath.row].type {
+            case .profileImage:
+                return tableView.frame.size.height * 0.4
+            case .editProfile:
+                return screenHeight * 0.08
+            }
+        }else{
+            return 0
         }
     }
-    
-    
 }
 
-class ProfileModelPhotosItem: ProfileModelItem {
-    var type: ProfileModelItemType {
-        return .photos
+class ProfileImageItem: MainViewItem {
+    var type: MainViewItemType {
+        return .profileImage
     }
     
-    var name: String {
-        return "Profile Photo"
+    var title: String {
+        return "Profile Image"
     }
-    
 }
 
-class ProfileModelInformationItem: ProfileModelItem {
-    var type: ProfileModelItemType{
-        return .information
+class EditProfileItem: MainViewItem {
+    var type: MainViewItemType {
+        return .editProfile
     }
     
-    var name: String{
-        return "Name"
+    var title: String {
+        return "Edit profile"
     }
-
 }

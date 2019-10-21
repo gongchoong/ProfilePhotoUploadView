@@ -25,7 +25,7 @@ class PhotoUploadCell: UITableViewCell {
     
     var model: PhotoUploadModel?
     let hud = JGProgressHUD(style: .light)
-    var mainViewController: MainViewController?
+    var userInfoController: UserInfoController?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -36,7 +36,7 @@ class PhotoUploadCell: UITableViewCell {
         activateHUD()
         getProfileImageArrayFromURLs { (imageDic, user) in
             self.getPermutationArray(imageDic.count, completion: { (permutationArray) in
-                self.model = PhotoUploadModel(self.collectionView, imageDic, user, permutationArray, self.mainViewController)
+                self.model = PhotoUploadModel(self.collectionView, imageDic, user, permutationArray, self.userInfoController)
                 self.collectionView.dataSource = self.model
                 self.collectionView.delegate = self.model
                 self.collectionView.dragInteractionEnabled = true
@@ -81,32 +81,32 @@ class PhotoUploadCell: UITableViewCell {
                 self.getImage(addressForUrl1, completion: { (result1) in
                     if let image1 = result1{
                         imageArray["1"] = (image1,false)
-                        self.mainViewController?.viewModel?.startingUrlArray["1"] = addressForUrl1
+                        self.userInfoController?.viewModel?.startingUrlArray["1"] = addressForUrl1
                     }
                     self.getImage(addressForUrl2, completion: { (result2) in
                         if let image2 = result2{
                             imageArray["2"] = (image2, false)
-                            self.mainViewController?.viewModel?.startingUrlArray["2"] = addressForUrl2
+                            self.userInfoController?.viewModel?.startingUrlArray["2"] = addressForUrl2
                         }
                         self.getImage(addressForUrl3, completion: { (result3) in
                             if let image3 = result3{
                                 imageArray["3"] = (image3, false)
-                                self.mainViewController?.viewModel?.startingUrlArray["3"] = addressForUrl3
+                                self.userInfoController?.viewModel?.startingUrlArray["3"] = addressForUrl3
                             }
                             self.getImage(addressForUrl4, completion: { (result4) in
                                 if let image4 = result4{
                                     imageArray["4"] = (image4, false)
-                                    self.mainViewController?.viewModel?.startingUrlArray["4"] = addressForUrl4
+                                    self.userInfoController?.viewModel?.startingUrlArray["4"] = addressForUrl4
                                 }
                                 self.getImage(addressForUrl5, completion: { (result5) in
                                     if let image5 = result5{
                                         imageArray["5"] = (image5, false)
-                                        self.mainViewController?.viewModel?.startingUrlArray["5"] = addressForUrl5
+                                        self.userInfoController?.viewModel?.startingUrlArray["5"] = addressForUrl5
                                     }
                                     self.getImage(addressForUrl6, completion: { (result6) in
                                         if let image6 = result6{
                                             imageArray["6"] = (image6, false)
-                                            self.mainViewController?.viewModel?.startingUrlArray["6"] = addressForUrl6
+                                            self.userInfoController?.viewModel?.startingUrlArray["6"] = addressForUrl6
                                             completion(imageArray, user)
                                         }else{
                                             completion(imageArray, user)

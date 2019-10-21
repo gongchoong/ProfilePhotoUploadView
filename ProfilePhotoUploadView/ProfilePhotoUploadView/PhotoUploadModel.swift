@@ -26,7 +26,7 @@ class PhotoUploadModel: NSObject {
     
     fileprivate let emptyImage = UIImage(named: "addImg")
     
-    init(_ cv: UICollectionView, _ dic: [String: (UIImage, Bool)], _ user: User, _ perm: [String], _ vc: MainViewController?) {
+    init(_ cv: UICollectionView, _ dic: [String: (UIImage, Bool)], _ user: User, _ perm: [String], _ vc: UserInfoController?) {
         collectionView = cv
         imageDic = dic
         loggedInUser = user

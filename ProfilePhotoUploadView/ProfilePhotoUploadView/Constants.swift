@@ -10,6 +10,6 @@ import Foundation
 import UIKit
 import Firebase
 
-let screenHeight = UIScreen.main.bounds.height
+let screenHeight = UIScreen.main.bounds.height - (UIApplication.shared.keyWindow?.safeAreaInsets.top)! - (UIApplication.shared.keyWindow?.safeAreaInsets.bottom)!
 let REF_USERS = Database.database().reference().child("Users")
 let MAX_IMAGE_SIZE_BYTES : Int = 800000

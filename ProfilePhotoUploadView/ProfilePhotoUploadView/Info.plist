@@ -54,5 +54,10 @@
 	<string>ProfilePhotoUpdateView</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>This allows to choose profile pictures from your album.</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Lato-Regular.ttf</string>
+		<string>Lato-Bold.ttf</string>
+	</array>
 </dict>
 </plist>

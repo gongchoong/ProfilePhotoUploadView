@@ -13,5 +13,13 @@ class User: NSObject {
         imageUrls = dictionary["imageUrls"] as? [String: String]
     }
     
+    func getProfileImageUrl() -> String?{
+        if let images = imageUrls{
+            return images["url1"]
+        }else{
+            return nil
+        }
+    }
+    
 }
 
