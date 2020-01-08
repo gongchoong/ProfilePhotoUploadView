@@ -230,9 +230,12 @@ class LoginViewController: UIViewController {
     
     fileprivate func loadMainViewController(){
         if let mainController = mainViewController{
-            mainController.viewModel?.getLoggedInUser()
+            print("loading mainview...")
+            mainController.checkIfLoggedIn()
             navigationController?.popViewController(animated: true)
             activateLoginButton()
+        }else{
+            print("not loading mainview...")
         }
     }
     

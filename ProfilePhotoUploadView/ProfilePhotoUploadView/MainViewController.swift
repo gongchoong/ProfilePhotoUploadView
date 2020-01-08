@@ -40,7 +40,7 @@ class MainViewController: UIViewController {
         checkIfLoggedIn()
     }
     
-    fileprivate func checkIfLoggedIn(){
+    func checkIfLoggedIn(){
         if Auth.auth().currentUser == nil{
             loadLoginViewController()
         }else{
