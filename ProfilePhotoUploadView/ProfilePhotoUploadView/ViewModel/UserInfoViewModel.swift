@@ -30,6 +30,14 @@ protocol ProfileModelItem{
     var name: String {get}
 }
 
+class CustomUIImageView: UIImageView {
+    var isChanged: Bool = false
+}
+
+class CustomImagePickerController: UIImagePickerController {
+    var indexPath: IndexPath?
+}
+
 class UserInfoViewModel: NSObject{
     
     var tableView: UITableView?

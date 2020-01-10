@@ -7,42 +7,9 @@
 //
 
 import UIKit
-import Firebase
-import FacebookLogin
-import FacebookCore
 import SDWebImage
 
-class CustomUIImageView: UIImageView {
-    var isChanged: Bool = false
-}
-
-class CustomImagePickerController: UIImagePickerController {
-    var indexPath: IndexPath?
-}
-
-class UserInfoController: UIViewController, ProfileImageUploadModelDelegate, UINavigationControllerDelegate{
-    func presentImagePicker(_ indexPath: IndexPath) {
-        presentPhotoLibrary(indexPath)
-    }
-    
-    func presentPhotoPermissionDeniedAlert() {
-        let alert = UIAlertController(title: "Photo Access Required", message: "In order to access your camera roll, we need to access your Photos. Please enable.", preferredStyle: .actionSheet)
-        let cancelAction = UIAlertAction(title: "cancel", style: .cancel, handler: nil)
-        let enableAction = UIAlertAction(title: "enable", style: .default) { (action) in
-            if let url = URL(string:UIApplication.openSettingsURLString) {
-                if UIApplication.shared.canOpenURL(url) {
-                    if #available(iOS 10.0, *) {
-                        UIApplication.shared.open(url, options: [:], completionHandler: nil)
-                    } else {
-                        UIApplication.shared.openURL(url)
-                    }
-                }
-            }
-        }
-        alert.addAction(cancelAction)
-        alert.addAction(enableAction)
-    }
-    
+class UserInfoController: UIViewController{
     
     let tableView: UITableView = {
         let view = UITableView()
@@ -98,7 +65,31 @@ class UserInfoController: UIViewController, ProfileImageUploadModelDelegate, UIN
     }
 }
 
-extension UserInfoController: UIImagePickerControllerDelegate {
+extension UserInfoController: ProfileImageUploadModelDelegate {
+    func presentImagePicker(_ indexPath: IndexPath) {
+        presentPhotoLibrary(indexPath)
+    }
+    
+    func presentPhotoPermissionDeniedAlert() {
+        let alert = UIAlertController(title: "Photo Access Required", message: "In order to access your camera roll, we need to access your Photos. Please enable.", preferredStyle: .actionSheet)
+        let cancelAction = UIAlertAction(title: "cancel", style: .cancel, handler: nil)
+        let enableAction = UIAlertAction(title: "enable", style: .default) { (action) in
+            if let url = URL(string:UIApplication.openSettingsURLString) {
+                if UIApplication.shared.canOpenURL(url) {
+                    if #available(iOS 10.0, *) {
+                        UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                    } else {
+                        UIApplication.shared.openURL(url)
+                    }
+                }
+            }
+        }
+        alert.addAction(cancelAction)
+        alert.addAction(enableAction)
+    }
+}
+
+extension UserInfoController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     fileprivate func presentPhotoLibrary(_ indexPath: IndexPath){
         DispatchQueue.main.async {
@@ -135,15 +126,14 @@ extension UserInfoController: UIImagePickerControllerDelegate {
             dismiss(animated: true)
         }
     }
-}
+    
+    fileprivate func convertFromUIImagePickerControllerInfoKeyDictionary(_ input: [UIImagePickerController.InfoKey: Any]) -> [String: Any] {
+        return Dictionary(uniqueKeysWithValues: input.map {key, value in (key.rawValue, value)})
+    }
 
-
-fileprivate func convertFromUIImagePickerControllerInfoKeyDictionary(_ input: [UIImagePickerController.InfoKey: Any]) -> [String: Any] {
-    return Dictionary(uniqueKeysWithValues: input.map {key, value in (key.rawValue, value)})
-}
-
-fileprivate func convertFromUIImagePickerControllerInfoKey(_ input: UIImagePickerController.InfoKey) -> String {
-    return input.rawValue
+    fileprivate func convertFromUIImagePickerControllerInfoKey(_ input: UIImagePickerController.InfoKey) -> String {
+        return input.rawValue
+    }
 }
 
 

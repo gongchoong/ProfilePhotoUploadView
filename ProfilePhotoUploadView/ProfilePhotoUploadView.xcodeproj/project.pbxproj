@@ -11,6 +11,8 @@
 		C011E2BD235B932F0098A97D /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C011E2BC235B932F0098A97D /* MainViewController.swift */; };
 		C011E2BF235B939C0098A97D /* MainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C011E2BE235B939C0098A97D /* MainViewModel.swift */; };
 		C0191E87235CABBC00F82531 /* UserProfileImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0191E86235CABBC00F82531 /* UserProfileImageCell.swift */; };
+		C028DC2E23C75725006FE7E1 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = C028DC2D23C75725006FE7E1 /* Utils.swift */; };
+		C028DC3023C75E59006FE7E1 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C028DC2F23C75E59006FE7E1 /* LoginViewModel.swift */; };
 		C03080AF2317BFD90095916F /* PhotoUploadCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03080AE2317BFD90095916F /* PhotoUploadCell.swift */; };
 		C03080B12317C08E0095916F /* PhotoUploadModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03080B02317C08E0095916F /* PhotoUploadModel.swift */; };
 		C03080B32317C11B0095916F /* imageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03080B22317C11B0095916F /* imageCell.swift */; };
@@ -37,6 +39,8 @@
 		C011E2BC235B932F0098A97D /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		C011E2BE235B939C0098A97D /* MainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewModel.swift; sourceTree = "<group>"; };
 		C0191E86235CABBC00F82531 /* UserProfileImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileImageCell.swift; sourceTree = "<group>"; };
+		C028DC2D23C75725006FE7E1 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
+		C028DC2F23C75E59006FE7E1 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 		C03080AE2317BFD90095916F /* PhotoUploadCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoUploadCell.swift; sourceTree = "<group>"; };
 		C03080B02317C08E0095916F /* PhotoUploadModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoUploadModel.swift; sourceTree = "<group>"; };
 		C03080B22317C11B0095916F /* imageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = imageCell.swift; sourceTree = "<group>"; };
@@ -79,6 +83,41 @@
 			name = Pods;
 			sourceTree = "<group>";
 		};
+		C028DC2A23C7510B006FE7E1 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				C06A8E12231909B0000D2BC8 /* User.swift */,
+				C04D12E7231548BD0055181D /* MyProfileRequest.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		C028DC2B23C7519B006FE7E1 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				C028DC2F23C75E59006FE7E1 /* LoginViewModel.swift */,
+				C011E2BE235B939C0098A97D /* MainViewModel.swift */,
+				C0DE5B452316690500225E6B /* UserInfoViewModel.swift */,
+				C03080B02317C08E0095916F /* PhotoUploadModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		C028DC2C23C7529D006FE7E1 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				C054225C2313C80C0095F630 /* LoginViewController.swift */,
+				C011E2BC235B932F0098A97D /* MainViewController.swift */,
+				C054224C2313C72E0095F630 /* UserInfoController.swift */,
+				C0EEA1F5231B2D4800239540 /* DetailInfoCell.swift */,
+				C0191E86235CABBC00F82531 /* UserProfileImageCell.swift */,
+				C08D9A20235CD1BC00C96FB9 /* UserProfileMenuCell.swift */,
+				C03080AE2317BFD90095916F /* PhotoUploadCell.swift */,
+				C03080B22317C11B0095916F /* imageCell.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
 		C054223E2313C72D0095F630 = {
 			isa = PBXGroup;
 			children = (
@@ -100,26 +139,17 @@
 		C05422492313C72E0095F630 /* ProfilePhotoUploadView */ = {
 			isa = PBXGroup;
 			children = (
-				C08D9A1B235CC0D200C96FB9 /* fonts */,
 				C054224A2313C72E0095F630 /* AppDelegate.swift */,
-				C054224C2313C72E0095F630 /* UserInfoController.swift */,
-				C0DE5B452316690500225E6B /* UserInfoViewModel.swift */,
 				C05422512313C72F0095F630 /* Assets.xcassets */,
 				C05422532313C72F0095F630 /* LaunchScreen.storyboard */,
 				C05422562313C72F0095F630 /* Info.plist */,
 				C04D12E5231504850055181D /* GoogleService-Info.plist */,
-				C054225C2313C80C0095F630 /* LoginViewController.swift */,
-				C04D12E7231548BD0055181D /* MyProfileRequest.swift */,
-				C03080AE2317BFD90095916F /* PhotoUploadCell.swift */,
-				C03080B02317C08E0095916F /* PhotoUploadModel.swift */,
-				C03080B22317C11B0095916F /* imageCell.swift */,
 				C03080B42317C2AB0095916F /* Constants.swift */,
-				C06A8E12231909B0000D2BC8 /* User.swift */,
-				C0EEA1F5231B2D4800239540 /* DetailInfoCell.swift */,
-				C011E2BC235B932F0098A97D /* MainViewController.swift */,
-				C011E2BE235B939C0098A97D /* MainViewModel.swift */,
-				C0191E86235CABBC00F82531 /* UserProfileImageCell.swift */,
-				C08D9A20235CD1BC00C96FB9 /* UserProfileMenuCell.swift */,
+				C028DC2D23C75725006FE7E1 /* Utils.swift */,
+				C028DC2C23C7529D006FE7E1 /* View */,
+				C028DC2B23C7519B006FE7E1 /* ViewModel */,
+				C028DC2A23C7510B006FE7E1 /* Model */,
+				C08D9A1B235CC0D200C96FB9 /* fonts */,
 			);
 			path = ProfilePhotoUploadView;
 			sourceTree = "<group>";
@@ -284,8 +314,10 @@
 				C011E2BD235B932F0098A97D /* MainViewController.swift in Sources */,
 				C03080B12317C08E0095916F /* PhotoUploadModel.swift in Sources */,
 				C011E2BF235B939C0098A97D /* MainViewModel.swift in Sources */,
+				C028DC2E23C75725006FE7E1 /* Utils.swift in Sources */,
 				C04D12E8231548BD0055181D /* MyProfileRequest.swift in Sources */,
 				C03080AF2317BFD90095916F /* PhotoUploadCell.swift in Sources */,
+				C028DC3023C75E59006FE7E1 /* LoginViewModel.swift in Sources */,
 				C0191E87235CABBC00F82531 /* UserProfileImageCell.swift in Sources */,
 				C03080B32317C11B0095916F /* imageCell.swift in Sources */,
 				C054224D2313C72E0095F630 /* UserInfoController.swift in Sources */,

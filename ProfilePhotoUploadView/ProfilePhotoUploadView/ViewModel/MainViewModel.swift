@@ -44,6 +44,15 @@ class MainViewModel: NSObject {
         getLoggedInUser()
     }
     
+    func checkIfLoggedIn(_ completion: @escaping(Bool)->()){
+        if Auth.auth().currentUser == nil{
+            //loadLoginViewController()
+            completion(false)
+        }else{
+            completion(true)
+        }
+    }
+    
     func getLoggedInUser(){
         if let uid = Auth.auth().currentUser?.uid{
             Database.database().reference().child("Users").child(uid).observeSingleEvent(of: .value) { (snapshot) in
